@@ -2,27 +2,24 @@
 const electron = require('electron')
 const {
   ipcMain,
-  dialog,
   app,
-  Menu,
-  Tray,
   BrowserWindow,
   shell,
   globalShortcut,
   Notification
-} = require('electron')
+} = electron
 const path = require('path');
 var spawn = require('child_process');
 var contextMenu;
 var Imap = require('imap');
 var MailParser = require("mailparser").MailParser;
 var fs = require("fs");
+const _function = require('./function');
+
 var appTray;
 let mainWindow;
 let notif;
-//菜单栏图标的位置
-var iconX = 0;
-var iconY = 0;
+
 
 //窗口id值
 var windowId;
@@ -30,7 +27,6 @@ var windowId;
 var systemWindowId;
 //窗口对象
 var windowobj;
-var modelMenuId = 0;
 
 //邮件obj
 var emails = [];
@@ -45,7 +41,6 @@ var systemObj = {
   "change_texure_way": "",
   "emailFlag": false,
   "soundFlag": true,
-  "model": "",
   "menu": [],
   "menu_text": "",
   "website": "",
@@ -96,16 +91,9 @@ function initSystemSetUp() {
   //监听
   imapReady();
 }
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 
 function createWindow() {
   //启动，初始化email
-  var dbPath = path.join(__dirname, '/db/db.json')
-  const low = require('lowdb');
-  const FileSync = require('lowdb/adapters/FileSync');
-  const adapter = new FileSync(dbPath);
-  const db = low(adapter);
   const {
     width,
     height
@@ -150,7 +138,7 @@ function createWindow() {
     for (var i = 0; i < submenus.length; i++) {
       if (submenus[i].checked) {
         var n = i == (submenus.length - 1) ? 0 : i + 1;
-        changeModel(submenus[n]);
+        _function.changeModel(submenus[n],windowId);
         //contextMenu.items[0].submenu.items[i].checked = false;
         submenus[n].checked = true;
         break;
@@ -166,7 +154,7 @@ function createWindow() {
 
   //快捷键json数据格式化
   globalShortcut.register('CommandOrControl+T', () => {
-      spawn.execFile(path.join(__dirname,"/sh/JsonUtils.sh"),function(error,stdout,stderr){
+      spawn.execFile(path.join(__dirname,"/sh/JsonUtils.sh"),function(error){
         if (error !== null) {
           console.log('exec error: ' + error);
           return
@@ -174,144 +162,8 @@ function createWindow() {
       });
   });
 
-  //生成子菜单
-  var submenuArr = [];
-  for (var i in systemObj["menu"]) {
-    var tag = systemObj["model"] == systemObj["menu"][i] ? true : false;
-    var menuObj = {};
-    menuObj.label = systemObj["menu"][i]
-    menuObj.type = 'radio';
-    menuObj.checked = tag;
-    menuObj.enabled = true;
-    menuObj.click = function (menuItem) {
-      changeModel(menuItem);
-    };
-    submenuArr.push(menuObj);
-  }
-  var trayMenuTemplate = [{
-      id: 1,
-      label: '更换模型',
-      type: 'submenu',
-      // icon: path.join(__dirname, '/img/Fairy44 - Face #2220.png'),
-      submenu: submenuArr
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: '小功能',
-      type: 'submenu',
-      submenu: [
-        {
-          label: '显示ip',
-          click: function() {
-              spawn.execFile(path.join(__dirname,"/sh/ip.sh"),function(error,stdout,stderr){
-                if (error !== null) {
-                  console.log('exec error: ' + error);
-                  return
-                }
-                title += stdout;
-                appTray.setTitle("\u001b[36m " + stdout);
-              });
-          }
-        },
-        {
-          label: 'json格式化',
-          click: function() {
-            spawn.execFile(path.join(__dirname,"/sh/JsonUtils.sh"),function(error,stdout,stderr){
-              if (error !== null) {
-                console.log('exec error: ' + error);
-                return
-              }
-            });
-          }
-        },
-        {
-          label: '锁定屏幕',
-          click: function() {
-            spawn.execFile(path.join(__dirname,"/sh/lock.sh"),["lock"],function(error,stdout,stderr){
-              if (error !== null) {
-                console.log('exec error: ' + error);
-                return
-              }
-            });
-          }
-        }
-      ]
-    },
-    {
-      id: 2,
-      label: '系统设置',
-      click: function () {
-        //let displays = electron.screen.getCursorScreenPoint()
-        let systemWindow = new BrowserWindow({
-          width: 600,
-          height: 450,
-          title: '',
-          webPreferences: {
-            nodeIntegration: true
-          }
-        });
-        systemWindow.loadFile(path.join(__dirname, '/system.html'));
-        //打开开发者工具
-        //systemWindow.webContents.openDevTools();
-        systemWindowId = systemWindow.id;
-      }
-    },
-    {
-      id: 3,
-      label: '设置模型仓库',
-      click: function () {
-        dialog.showOpenDialog(null, {
-          title: "请选择文件",
-          properties: ["openDirectory"],
-          message: "选择自定义的模型仓库位置"
-        }, function (filePaths, securityScopedBookmarks) {
-          if (filePaths != undefined) {
-            db.set("user_model_path",filePaths).write();
-          }
-        });
-      }
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'website',
-      click: function () {
-        //shell打开页面
-        shell.openExternal(systemObj.website);
-      }
-    },
-    {
-      label: '赞助',
-      click: function (menuItem, browserWindow, event) {
-        wechatpay(appTray.getBounds(),browserWindow);
-      }
-    },
-    {
-      label: '退出',
-      role: 'quit'
-    }
-  ];
-  // //系统托盘图标目录
-  trayIcon = path.join(__dirname, '');
-  appTray = new Tray(path.join(trayIcon, './img/tomato.png'));
-  //图标的上下文菜单
-  contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
-  //设置此托盘图标的悬停提示内容
-  appTray.setToolTip('还快不点一下.');
-  //
-  // spawn.exec(systemObj.menu_text,function (error, stdout, stderr) {
-  //   if (error !== null) {
-  //     console.log('exec error: ' + error);
-  //   }
-  //   var command = stdout;
-  // });
-  var title = "\u001b[34m ";
-  //设置此图标的上下文菜单
-  appTray.setContextMenu(contextMenu);
-  appTray.setTitle(title + systemObj.menu_text);
+  // test()
+  appTray = _function.setMenu(systemObj,windowId)
   //开启邮箱提醒
   if (systemObj["emailFlag"]) initSystemSetUp();
 }
@@ -327,6 +179,7 @@ app.on('window-all-closed', function () {
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') app.quit()
 })
+
 
 app.on('activate', function () {
   // On macOS it's common to re-create a window in the app when the
@@ -382,7 +235,7 @@ ipcMain.on('system-set-up', (event, arg) => {
     var submenus = contextMenu.items[0].submenu.items;
     for (var i = 0; i < submenus.length; i++) {
       if (submenus[i].label == arg.model) {
-        changeModel(submenus[i]);
+        _function.changeModel(submenus[i],windowId);
         //contextMenu.items[0].submenu.items[i].checked = false;
         submenus[i].checked = true;
         break;
@@ -393,18 +246,18 @@ ipcMain.on('system-set-up', (event, arg) => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
-//打开微信支付界面
-function wechatpay(bounds, browserWindow) {
-  //let displays = electron.screen.getCursorScreenPoint()
-  let wechatWindow = new BrowserWindow({
-    x: bounds.x - 100,
-    y: bounds.y,
-    width: 300,
-    height: 400,
-    title: '资助贫困人口'
-  });
-  wechatWindow.loadFile(path.join(__dirname, '/view/wechat.html'))
-}
+// //打开微信支付界面
+// function wechatpay(bounds) {
+//   //let displays = electron.screen.getCursorScreenPoint()
+//   let wechatWindow = new BrowserWindow({
+//     x: bounds.x - 100,
+//     y: bounds.y,
+//     width: 300,
+//     height: 400,
+//     title: '资助贫困人口'
+//   });
+//   wechatWindow.loadFile(path.join(__dirname, '/view/wechat.html'))
+// }
 
 //初始化imap
 var imap = null;
@@ -417,7 +270,7 @@ function imapReady() {
   if (imap != null) {
     var emailObj = {};
     imap.on('ready', function () {
-      openInbox(function (err, box) {
+      openInbox(function (err) {
         var result = [];
         console.log("打开邮箱")
         imap.expunge();
@@ -436,9 +289,9 @@ function imapReady() {
             imap.end();
             return;
           }
-          f.on('message', function (msg, seqno) {
+          f.on('message', function (msg) {
             var mailparser = new MailParser();
-            msg.on('body', function (stream, info) {
+            msg.on('body', function (stream) {
               stream.pipe(mailparser); //将为解析的数据流pipe到mailparser
               //邮件头内容
               mailparser.once("headers", function (headers) {
@@ -466,7 +319,7 @@ function imapReady() {
             });
             msg.on('end', function () {
               // console.log(seqno + '完成');
-              if (emailObj.hasOwnProperty("type")) {
+              if ( emailObj.hasOwnProperty("type")) {
                 emails.push(emailObj);
                 //添加已阅读标志
                 imap.addFlags(results, "SEEN");
@@ -491,7 +344,7 @@ function imapReady() {
                 // icon : path.join(trayIcon, './img/tomato.png')
               });
               notif.show();
-              notif.once('click', function (event) {
+              notif.once('click', function () {
                 if (!emails[0].hasOwnProperty("filename")) {
                   //用户点击了邮件
                   let emailWindow = new BrowserWindow({
@@ -541,10 +394,10 @@ function imapReady() {
   }
 }
 
-function changeModel(event) {
-  //event.checked = true;
-  //更换模型
-  var window = BrowserWindow.fromId(windowId);
-  //发送消息
-  window.webContents.send('changemodel', event.label);
-}
+// function changeModel(event) {
+//   //event.checked = true;
+//   //更换模型
+//   var window = BrowserWindow.fromId(windowId);
+//   //发送消息
+//   window.webContents.send('changemodel', event.label);
+// }

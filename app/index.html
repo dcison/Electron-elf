@@ -136,13 +136,9 @@
     <button id="Change" style="display:none"></button>
     <button id="texure" style="display:none"></button>
 </body>
-<script>
-    // You can also require other files to run in this process
-    // require('./renderer.js')
-</script>
 <script src="js/live2d.min.js"></script>
 <script>
-    const ipcRenderer = require('electron').ipcRenderer;
+    const ipcRenderer = require('electron').ipcRenderer; // https://www.w3cschool.cn/electronmanual/electronmanual-ipc-renderer.html
     //console.log(ipcRenderer.sendSync('synchronous-message', 'ping')); // prints "pong"
     //监听消息改变模型
     ipcRenderer.on('changemodel', function (event, arg) {
