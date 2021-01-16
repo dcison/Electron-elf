@@ -18,12 +18,23 @@
   ],
   "author": "wushaoqiang",
   "devDependencies": {
-    "electron": "latest"
+    "electron": "^11.2.0",
+    "electron-reloader": "^1.1.0",
+    "eslint": "^7.18.0",
+    "eslint-plugin-node": "^11.1.0"
   },
   "dependencies": {
-    "menubar": "latest",
     "imap": "^0.8.19",
+    "lowdb": "latest",
     "mailparser": "^2.6.0",
-    "lowdb": "latest"
+    "menubar": "latest"
+  },
+  "build": {
+    "extraResources": [
+      {
+        "from": "./img/",
+        "to": "img/"
+      }
+    ]
   }
 }
