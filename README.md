@@ -5,141 +5,26 @@
 ![Travis](https://img.shields.io/badge/live2D-2.1.0-ff69b4.svg?labelColor=blueviolet)
 [![Gitter](https://badges.gitter.im/Electron-elf/community.svg)](https://gitter.im/Electron-elf/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-[English Document](https://github.com/fguby/Elf/blob/master/READMEen.md "elf")
+### 原项目文档
 
-![avatar](app/img/yanshi1.gif)
+[点击这里](https://github.com/fguby/Electron-elf)查看原项目文档。
 
+## 基于 Desktop Elf 继续开发的个人用桌面精灵
 
-> 2020/9/17  感谢各位的喜欢，由于个人原因这个作品其实很久都没有进行维护了。从国庆假期开始，我将开始尝试重构elf，包括对windows平台的支持，适配electron最新版，添加一些新的模型等等，如果我司不再拼命安排加班的话，预计11月底12月初，就能看到一个全新的elf。
+由于原作者以及好几个月没更新了（也许在加班），出于练手的目的，我们 Fork 了一份代码（原工程使用的证书允许二次开发），并在此基础上进行一些项目优化和功能添加（不过后面我们大概也可能加班，咕咕咕警告）。
 
+### RoadMap
 
-> 使用Electron、live2D开发的一款二次元桌面应用。
+#### 待完成工作
 
-### φ(≧ω≦*)♪
-如果你喜欢，请给我一颗⭐️✨ 
+- [ ] 优化项目结构，添加工程化功能
+  - [x] 添加ESLint
+  - [ ] 功能模块解耦
+  - [ ] 热更新
+  - [ ] ...
+- [ ] 功能优化
+- [ ] Bug修复
 
----
+## 意见及Bug反馈
 
-### 相关技术
-
-一 [构建跨平台的应用：Electron](https://electronjs.org/ "electron")
-
-一 [二次元技术-live2D](https://www.live2d.com/ja/ "live2D")
-
-一 [live2D Web插件](https://github.com/fguby/live2D "live2D")
-
-### 快速开始
-
-1.下载示例代码
-```
-git clone https://github.com/fguby/Electron-elf.git
-```
-2.进入目录
-```
-cd Electron-elf
-```
-3.安装依赖并运行
-
-```
-npm install && npm start
-```
-
-### 支持功能
-- [x] 模型切换
-- [x] 内置音效
-- [x] 窗口拖放
-- [x] 换装功能
-- [x] 自定义菜单标题文字
-- [x] 一些有趣的小功能
-- [x] mac通知栏开发(简易的删除邮件方式？)
-- [x] 支持设置本地的模型仓库
-- [x] 文本邮件的收取以及通知
-- [x] 附件邮件自动下载附件至本地
-- [x] 快捷键切换模型以及换装
-- [x] 拖动文件至模型区域触发删除功能
-
-#### 一个大概的系统设置界面？
-![avatar](app/img/system.jpg)
-#### 快捷键随机换装
-![avatar](app/img/huanzhuang.gif)
-#### 邮件收取以及mac通知栏通知
-![avatar](app/img/email.gif)
-#### 回复RM命令删除邮件
-![avatar](app/img/email111.gif)
-#### 拖动文件到模型区域可删除文件
-![avatar](app/img/lajitong1.gif)
-#### 菜单标题更换为ip
-![avatar](app/img/ip.gif)
-
----
-### 设置本地模型仓库步骤
-
-- 1️⃣设置模型仓库"
-(选中要上传的文件夹，将模型的json文件统一修改为model.json这个名字，确保系统能读取到。)
-
-- 2️⃣点击‘系统设置’，配置新增模型的菜单栏文字。
-
-- 3️⃣重启应用。
-
----
-
-### 一些有意思的小功能展示(即将要做的)
-
-#### json字符串的格式化（使用快捷键command + T试试）
-![avatar](app/img/json.gif)
-
-脚本来自于一 [JsonUtils](https://github.com/cnfn/BitBarPlugins/tree/master/JsonUtils "jsonutil")
-
-环境依赖：jq
-
-可以使用以下命令安装
-
-```
-brew install jq
-```
-
-或者，
-
-[去看看官方的示例？](https://stedolan.github.io/jq/download/ "jq")
-
----
-
-### TODO
-- [x] 邮箱监控
-- [x] 换装功能
-- [x] mac通知栏开发
-- [x] 上传自定义模型
-- [ ] 一些有趣小功能的开发(显示ip，天气等)
-- [ ] 快捷键自定义设置
-- [x] 废纸篓功能
-- [ ] 自定义邮件附件的存储位置
-- [x] mac通知栏添加回复行，可直接删除邮件
-- [ ] 各个模块的自定义配置页面(初始启动模型设置、衣服设置......)
-- [ ] 等等等......
-
-
-> 如果喜欢的话，恳请给予一个star，持续watch这个项目最好啦。
-
-一 [这里是最新的测试版dmg文件:alien:](https://github.com/fguby/Elf/releases/tag/v1.0.1/ "Elf")
-
-
----
-
-### 快捷键说明
-
-功能 | 快捷键
----|---
-切换模型 | command + Y
-切换衣服 | command + J
-格式化json字符串 | command + T
-
-~~暂时只支持两个快捷键，后续请期待。~~
-
-新增第三个快捷键(请注意，这个功能的使用需要依赖一些额外的东西，详情请往上翻。)
-
----
-
-### 意见以及BUG反馈
-一 [issues:speech_balloon:](https://github.com/fguby/Elf/issues "welcome")
-
-邮箱：fguby1995@gmail.com
+邮箱：不存在的邮箱
