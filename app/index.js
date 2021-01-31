@@ -1,4 +1,3 @@
-// Modules to control application life and create native browser window
 const electron = require('electron')
 const {
   ipcMain,
@@ -31,8 +30,42 @@ var windowobj;
 //邮件obj
 var emails = [];
 
+
+
+function connectEmail() {
+  //连接邮箱前先清空邮件数组
+  emails = [];
+  imap.connect();
+}
+
+function setEmailInterval() {
+  if (imap != null) setInterval(connectEmail, 10000);
+}
+
+//从dbjson里加载数据的function
+const setSystemObj = () => {
+  const low = require('lowdb');
+  const FileSync = require('lowdb/adapters/FileSync');
+  //启动，初始化email
+  const dbPath = path.join(__dirname, '/db/db.json')
+  const adapter = new FileSync(dbPath);
+  const db = low(adapter);
+  const configObj = {}
+  configObj['email'] = db.get("email").value();
+  configObj['password'] = db.get("password").value();
+  configObj['pop'] = db.get("pop").value();
+  configObj['model'] = db.get("model").value();
+  configObj['emailFlag'] = db.get("emailFlag").value();
+  configObj['soundFlag'] = db.get("soundFlag").value();
+  configObj['menu'] = db.get("menu").value();
+  configObj['menu_text'] = db.get("menu_text").value();
+  configObj['model_path'] = db.get("model_path").value();
+  configObj['website'] = db.get("website").value();
+  configObj['change_texure_way'] = db.get("change_texure_way").value();
+  return configObj;
+}
 //设置一个系统的全局变量
-var systemObj = {
+const defaultSystemConfig = {
   "email": "",
   "password": "",
   "pop": "",
@@ -46,39 +79,12 @@ var systemObj = {
   "website": "",
   "model_path": []
 };
-
-function connectEmail() {
-  //连接邮箱前先清空邮件数组
-  emails = [];
-  imap.connect();
-}
-
-function setEmailInterval() {
-  if (imap != null) setInterval(connectEmail, 10000);
-}
-
-//从dbjson里加载数据的function
-function setSystemObj() {
-  //启动，初始化email
-  var dbPath = path.join(__dirname, '/db/db.json')
-  const low = require('lowdb');
-  const FileSync = require('lowdb/adapters/FileSync');
-  const adapter = new FileSync(dbPath);
-  const db = low(adapter);
-  systemObj['email'] = db.get("email").value();
-  systemObj['password'] = db.get("password").value();
-  systemObj['pop'] = db.get("pop").value();
-  systemObj['model'] = db.get("model").value();
-  systemObj['emailFlag'] = db.get("emailFlag").value();
-  systemObj['soundFlag'] = db.get("soundFlag").value();
-  systemObj['menu'] = db.get("menu").value();
-  systemObj['menu_text'] = db.get("menu_text").value();
-  systemObj['model_path'] = db.get("model_path").value();
-  systemObj['website'] = db.get("website").value();
-  systemObj['change_texure_way'] = db.get("change_texure_way").value();
-}
 //初始化系统设置
-setSystemObj();
+
+const systemObj = {
+  ...defaultSystemConfig,
+  ...setSystemObj()
+};
 
 function initSystemSetUp() {
   imap = new Imap({
@@ -116,18 +122,13 @@ function createWindow() {
       nodeIntegration: true
     }
   }
-  // Create the browser window.
   mainWindow = new BrowserWindow(windowobj);
   // 打开开发者工具
   //mainWindow.webContents.openDevTools()
   windowId = mainWindow.id;
-  // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '/index.html'))
 
   mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
     mainWindow = null
   })
 
@@ -162,7 +163,6 @@ function createWindow() {
       });
   });
 
-  // test()
   appTray = _function.setMenu(systemObj,windowId)
   //开启邮箱提醒
   if (systemObj["emailFlag"]) initSystemSetUp();

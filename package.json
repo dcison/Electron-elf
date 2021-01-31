@@ -20,14 +20,17 @@
   "devDependencies": {
     "electron": "^11.2.0",
     "electron-reloader": "^1.1.0",
-    "eslint": "^7.18.0",
+    "eslint": "^7.19.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0"
   },
   "dependencies": {
     "imap": "^0.8.19",
     "lowdb": "latest",
     "mailparser": "^2.6.0",
-    "menubar": "latest"
+    "menubar": "latest",
+    "electron": "latest"
   },
   "build": {
     "extraResources": [
